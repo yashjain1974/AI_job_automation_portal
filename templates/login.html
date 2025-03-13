@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Recruitment Platform - Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px 0;
+        }
+        .login-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+        }
+        .login-header {
+            padding: 30px;
+            text-align: center;
+        }
+        .login-header h2 {
+            margin-bottom: 0;
+            color: #333;
+            font-weight: 600;
+        }
+        .login-body {
+            padding: 0 30px 30px;
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+        .btn-candidate {
+            background-color: #6a11cb;
+            border-color: #6a11cb;
+        }
+        .btn-recruiter {
+            background-color: #ff7f50;
+            border-color: #ff7f50;
+        }
+        .btn-candidate:hover {
+            background-color: #5910a7;
+            border-color: #5910a7;
+        }
+        .btn-recruiter:hover {
+            background-color: #e86a3e;
+            border-color: #e86a3e;
+        }
+        .separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: #6c757d;
+        }
+        .separator::before, .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .separator::before {
+            margin-right: 10px;
+        }
+        .separator::after {
+            margin-left: 10px;
+        }
+        .social-buttons .btn {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .portal-selector {
+            display: flex;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .portal-option {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        .portal-candidate {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .portal-recruiter {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .portal-candidate.active {
+            background-color: #6a11cb;
+            color: white;
+        }
+        .portal-recruiter.active {
+            background-color: #ff7f50;
+            color: white;
+        }
+        #recruiterLoginForm, #candidateLoginForm {
+            display: none;
+        }
+        .active-form {
+            display: block !important;
+        }
+        .login-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .form-toggle {
+            cursor: pointer;
+            color: #6a11cb;
+            text-decoration: underline;
+        }
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .alert {
+            display: none;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="login-container">
+                    <div class="row">
+                        <div class="col-md-6 p-5">
+                            <div class="login-header">
+                                <h2>AI Recruitment Platform</h2>
+                                <p class="text-muted">Sign in to access your dashboard</p>
+                            </div>
+                            
+                            <!-- Alerts -->
+                            <div class="alert alert-danger" id="errorAlert" role="alert"></div>
+                            <div class="alert alert-success" id="successAlert" role="alert"></div>
+                            
+                            <!-- Loading Spinner -->
+                            <div id="loading">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Processing your request...</p>
+                            </div>
+                            
+                            <!-- Portal Selector -->
+                            <div class="portal-selector">
+                                <div class="portal-option portal-candidate active" id="candidatePortalOption">
+                                    Job Seekers
+                                </div>
+                                <div class="portal-option portal-recruiter" id="recruiterPortalOption">
+                                    Recruiters
+                                </div>
+                            </div>
+
+                            <!-- Candidate Login Form -->
+                            <div id="candidateLoginForm" class="active-form">
+                                <form id="candidateSignInForm">
+                                    <div class="mb-3">
+                                        <input type="email" class="form-control" id="candidateEmail" placeholder="Email address" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="password" class="form-control" id="candidatePassword" placeholder="Password" required>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="candidateRemember">
+                                        <label class="form-check-label" for="candidateRemember">Remember me</label>
+                                        <a href="#" class="float-end">Forgot password?</a>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-login btn-candidate">Sign In</button>
+                                </form>
+                                
+                                <div class="separator">or continue with</div>
+
+                                <div class="social-buttons">
+                                    <button class="btn btn-outline-secondary w-100 mb-2" id="candidateGoogleSignIn">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" width="20">
+                                        Sign in with Google
+                                    </button>
+                                    <button class="btn btn-outline-secondary w-100" id="candidateLinkedInSignIn">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" width="20">
+                                        Sign in with LinkedIn
+                                    </button>
+                                </div>
+
+                                <p class="text-center mt-4">
+                                    Don't have an account? <span class="form-toggle" id="candidateSignUpToggle">Sign Up</span>
+                                </p>
+
+                                <!-- Candidate Sign Up Form (initially hidden) -->
+                                <div id="candidateSignUpForm" style="display: none;">
+                                    <form id="candidateSignUpFormElement">
+                                        <div class="mb-3">
+                                            <input type="text" class="form-control" id="candidateFullName" placeholder="Full Name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <input type="email" class="form-control" id="candidateSignUpEmail" placeholder="Email address" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <input type="password" class="form-control" id="candidateSignUpPassword" placeholder="Password" required minlength="6">
+                                        </div>
+                                        <div class="mb-3">
+                                            <input type="password" class="form-control" id="candidateConfirmPassword" placeholder="Confirm Password" required minlength="6">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-login btn-candidate">Sign Up</button>
+                                    </form>
+                                    <p class="text-center mt-4">
+                                        Already have an account? <span class="form-toggle" id="candidateSignInToggle">Sign In</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Recruiter Login Form -->
+                            <div id="recruiterLoginForm">
+                                <form id="recruiterSignInForm">
+                                    <div class="mb-3">
+                                        <input type="email" class="form-control" id="recruiterEmail" placeholder="Work Email address" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="password" class="form-control" id="recruiterPassword" placeholder="Password" required>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="recruiterRemember">
+                                        <label class="form-check-label" for="recruiterRemember">Remember me</label>
+                                        <a href="#" class="float-end">Forgot password?</a>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-login btn-recruiter">Sign In</button>
+                                </form>
+                                
+                                <div class="separator">or continue with</div>
+
+                                <div class="social-buttons">
+                                    <button class="btn btn-outline-secondary w-100 mb-2" id="recruiterGoogleSignIn">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" width="20">
+                                        Sign in with Google
+                                    </button>
+                                </div>
+
+                                <p class="text-center mt-4">
+                                    Need a company account? <span class="form-toggle" id="recruiterSignUpToggle">Register</span>
+                                </p>
+
+                                <!-- Recruiter Sign Up Form (initially hidden) -->
+                                <div id="recruiterSignUpForm" style="display: none;">
+                                    <form id="recruiterSignUpFormElement">
+                                        <div class="mb-3">
+                                            <input type="text" class="form-control" id="recruiterFullName" placeholder="Full Name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <input type="text" class="form-control" id="companyName" placeholder="Company Name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <input type="email" class="form-control" id="recruiterSignUpEmail" placeholder="Work Email address" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <input type="password" class="form-control" id="recruiterSignUpPassword" placeholder="Password" required minlength="6">
+                                        </div>
+                                        <div class="mb-3">
+                                            <input type="password" class="form-control" id="recruiterConfirmPassword" placeholder="Confirm Password" required minlength="6">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-login btn-recruiter">Register</button>
+                                    </form>
+                                    <p class="text-center mt-4">
+                                        Already have an account? <span class="form-toggle" id="recruiterSignInToggle">Sign In</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-none d-md-block" style="background-color: #f8f9fa; padding: 40px;">
+                            <div class="text-center">
+                                <h3 class="mb-4" id="portalTitle">Find Your Perfect Job</h3>
+                                <img src="https://via.placeholder.com/400x300?text=AI+Recruitment" alt="AI Recruitment Platform" class="login-image" id="portalImage">
+                                <p class="lead" id="portalDescription">
+                                    Use our AI-powered platform to find opportunities that match your skills and experience.
+                                </p>
+                                <div class="mt-4">
+                                    <div class="d-flex justify-content-center">
+                                        <div class="px-2">
+                                            <div class="text-center mb-2">
+                                                <span class="d-block h2 text-primary">2M+</span>
+                                                <span class="text-muted">Jobs</span>
+                                            </div>
+                                        </div>
+                                        <div class="px-2">
+                                            <div class="text-center mb-2">
+                                                <span class="d-block h2 text-primary">500K+</span>
+                                                <span class="text-muted">Users</span>
+                                            </div>
+                                        </div>
+                                        <div class="px-2">
+                                            <div class="text-center mb-2">
+                                                <span class="d-block h2 text-primary">10K+</span>
+                                                <span class="text-muted">Companies</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-auth-compat.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBsGAQfn8KGRxvrZUbHXdGsVCEt5uZKGk",
+            authDomain: "recruitment-portal-automation.firebaseapp.com",
+            projectId: "recruitment-portal-automation",
+            storageBucket: "recruitment-portal-automation.appspot.com",
+            messagingSenderId: "363542928138",
+            appId: "1:363542928138:web:33373518ceef2ff37df8f3"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        
+        // Helper functions
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            errorAlert.textContent = message;
+            errorAlert.style.display = 'block';
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showSuccess(message) {
+            const successAlert = document.getElementById('successAlert');
+            successAlert.textContent = message;
+            successAlert.style.display = 'block';
+            setTimeout(() => {
+                successAlert.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Portal toggle functionality
+        document.getElementById('candidatePortalOption').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('recruiterPortalOption').classList.remove('active');
+            document.getElementById('candidateLoginForm').classList.add('active-form');
+            document.getElementById('recruiterLoginForm').classList.remove('active-form');
+            document.getElementById('portalTitle').textContent = 'Find Your Perfect Job';
+            document.getElementById('portalDescription').textContent = 'Use our AI-powered platform to find opportunities that match your skills and experience.';
+        });
+        
+        document.getElementById('recruiterPortalOption').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('candidatePortalOption').classList.remove('active');
+            document.getElementById('recruiterLoginForm').classList.add('active-form');
+            document.getElementById('candidateLoginForm').classList.remove('active-form');
+            document.getElementById('portalTitle').textContent = 'Find Top Talent';
+            document.getElementById('portalDescription').textContent = 'Use our AI-powered platform to find the best candidates for your open positions.';
+        });
+        
+        // Toggle between sign in and sign up forms
+        document.getElementById('candidateSignUpToggle').addEventListener('click', function() {
+            document.getElementById('candidateSignInForm').style.display = 'none';
+            document.getElementById('candidateSignUpForm').style.display = 'block';
+        });
+        
+        document.getElementById('candidateSignInToggle').addEventListener('click', function() {
+            document.getElementById('candidateSignUpForm').style.display = 'none';
+            document.getElementById('candidateSignInForm').style.display = 'block';
+        });
+        
+        document.getElementById('recruiterSignUpToggle').addEventListener('click', function() {
+            document.getElementById('recruiterSignInForm').style.display = 'none';
+            document.getElementById('recruiterSignUpForm').style.display = 'block';
+        });
+        
+        document.getElementById('recruiterSignInToggle').addEventListener('click', function() {
+            document.getElementById('recruiterSignUpForm').style.display = 'none';
+            document.getElementById('recruiterSignInForm').style.display = 'block';
+        });
+        
+        // Check if user is already signed in
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                // User is signed in, check role and redirect
+                checkUserTypeAndRedirect(user.uid);
+            }
+        });
+        
+        // Candidate Sign In Form
+        document.getElementById('candidateSignInForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showLoading();
+            
+            const email = document.getElementById('candidateEmail').value;
+            const password = document.getElementById('candidatePassword').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Check if user type matches in database
+                    checkUserTypeAndRedirect(userCredential.user.uid);
+                })
+                .catch((error) => {
+                    hideLoading();
+                    showError('Login Error: ' + error.message);
+                });
+        });
+        
+        // Recruiter Sign In Form
+        document.getElementById('recruiterSignInForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showLoading();
+            
+            const email = document.getElementById('recruiterEmail').value;
+            const password = document.getElementById('recruiterPassword').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Check if user type matches in database
+                    checkUserTypeAndRedirect(userCredential.user.uid);
+                })
+                .catch((error) => {
+                    hideLoading();
+                    showError('Login Error: ' + error.message);
+                });
+        });
+        
+        // Candidate Sign Up Form
+        document.getElementById('candidateSignUpFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showLoading();
+            
+            const fullName = document.getElementById('candidateFullName').value;
+            const email = document.getElementById('candidateSignUpEmail').value;
+            const password = document.getElementById('candidateSignUpPassword').value;
+            const confirmPassword = document.getElementById('candidateConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                hideLoading();
+                showError('Passwords do not match!');
+                return;
+            }
+            
+            // Create user in Firebase Auth
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Register user in your backend
+                    return fetch('/api/register_user', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            uid: userCredential.user.uid,
+                            email: email,
+                            displayName: fullName,
+                            role: 'candidate'
+                        })
+                    });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Registration successful!');
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 1000);
+                    } else {
+                        throw new Error(data.message || 'Registration failed');
+                    }
+                })
+                .catch((error) => {
+                    hideLoading();
+                    showError('Registration Error: ' + error.message);
+                });
+        });
+        
+        // Recruiter Sign Up Form
+        document.getElementById('recruiterSignUpFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showLoading();
+            
+            const fullName = document.getElementById('recruiterFullName').value;
+            const companyName = document.getElementById('companyName').value;
+            const email = document.getElementById('recruiterSignUpEmail').value;
+            const password = document.getElementById('recruiterSignUpPassword').value;
+            const confirmPassword = document.getElementById('recruiterConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                hideLoading();
+                showError('Passwords do not match!');
+                return;
+            }
+            
+            // Create user in Firebase Auth
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Register user in your backend
+                    return fetch('/api/register_user', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            uid: userCredential.user.uid,
+                            email: email,
+                            displayName: fullName,
+                            company: companyName,
+                            role: 'recruiter'
+                        })
+                    });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Registration successful!');
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 1000);
+                    } else {
+                        throw new Error(data.message || 'Registration failed');
+                    }
+                })
+                .catch((error) => {
+                    hideLoading();
+                    showError('Registration Error: ' + error.message);
+                });
+        });
+        
+        // Google Sign In
+        document.getElementById('candidateGoogleSignIn').addEventListener('click', function() {
+            showLoading();
+            signInWithGoogle('candidate');
+        });
+        
+        document.getElementById('recruiterGoogleSignIn').addEventListener('click', function() {
+            showLoading();
+            signInWithGoogle('recruiter');
+        });
+        
+        // LinkedIn Sign In
+        document.getElementById('candidateLinkedInSignIn').addEventListener('click', function() {
+            // LinkedIn authentication would need to be set up in Firebase
+            alert('LinkedIn authentication would be implemented here');
+        });
+        
+        // Authentication functions
+        function signInWithGoogle(userType) {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    // Check if user exists in database
+                    fetch('/api/check_user_role', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ uid: result.user.uid })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // User exists, check if role matches
+                            if (data.role === userType) {
+                                window.location.href = data.redirect;
+                            } else {
+                                hideLoading();
+                                showError(`You're registered as a ${data.role}, not as a ${userType}`);
+                            }
+                        } else {
+                            // User doesn't exist in database, register them
+                            return fetch('/api/register_user', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    uid: result.user.uid,
+                                    email: result.user.email,
+                                    displayName: result.user.displayName,
+                                    role: userType
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    window.location.href = data.redirect;
+                                } else {
+                                    throw new Error(data.message);
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        hideLoading();
+                        showError('Error checking user: ' + error.message);
+                    });
+                })
+                .catch((error) => {
+                    hideLoading();
+                    showError('Google Sign In Error: ' + error.message);
+                });
+        }
+        
+        function checkUserTypeAndRedirect(userId) {
+            fetch('/api/check_user_role', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ uid: userId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    showError('User not found or role mismatch. Please register first.');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                showError('Error: ' + error.message);
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

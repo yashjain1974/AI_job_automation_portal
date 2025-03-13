@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Dashboard - AI Recruitment Platform</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">
+        <div class="container-fluid px-4">
+            <button class="btn btn-link text-dark d-lg-none me-3" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand fw-bold" href="#">AI Recruitment Platform</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <form class="d-flex ms-auto me-4">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Search jobs...">
+                        <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
+                <ul class="navbar-nav mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge rounded-pill bg-danger">3</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Your application for Software Engineer was viewed</a></li>
+                            <li><a class="dropdown-item" href="#">You have an interview invitation</a></li>
+                            <li><a class="dropdown-item" href="#">New job match: Full Stack Developer</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown ms-3">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <img src="https://via.placeholder.com/40" class="avatar-sm me-2" alt="Profile">
+                            <span id="userName">{{ session.get('user_name', 'User') }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> My Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="logoutButton"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 sidebar" id="sidebar">
+                <div class="sidebar-sticky">
+                    <div class="text-center py-4">
+                        <img src="https://via.placeholder.com/80" class="rounded-circle mb-2" alt="Profile">
+                        <h6 class="mb-0" id="sidebarUserName">{{ session.get('user_name', 'User') }}</h6>
+                        <small class="text-muted">Candidate</small>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard-section">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#jobs-section">
+                                <i class="fas fa-briefcase"></i> Browse Jobs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#applications-section">
+                                <i class="fas fa-file-alt"></i> My Applications
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#interviews-section">
+                                <i class="fas fa-calendar-alt"></i> Interviews
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#notifications-section">
+                                <i class="fas fa-bell"></i> Notifications
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#profile-section">
+                                <i class="fas fa-user"></i> Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#settings-section">
+                                <i class="fas fa-cog"></i> Settings
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="sidebar-footer">
+                        <button class="btn btn-light btn-sm logout-btn" id="sidebarLogoutButton">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 main-content" id="main-content">
+                <div id="loadingSpinner" class="text-center my-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading your dashboard...</p>
+                </div>
+                
+                <div id="dashboardContent">
+                    <!-- Dashboard Section -->
+                    <section id="dashboard-section" class="mb-5">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Candidate Dashboard</h2>
+                            <div>
+                                <button class="btn btn-outline-primary me-2">
+                                    <i class="fas fa-file-upload me-2"></i> Update Resume
+                                </button>
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-search me-2"></i> Find Jobs
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="row quick-stats mb-4">
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted">Applications</h6>
+                                                <h3 class="mb-0" id="applicationsCount">0</h3>
+                                            </div>
+                                            <div class="bg-light p-3 rounded">
+                                                <i class="fas fa-file-alt text-primary"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted">Interviews</h6>
+                                                <h3 class="mb-0" id="interviewsCount">0</h3>
+                                            </div>
+                                            <div class="bg-light p-3 rounded">
+                                                <i class="fas fa-calendar-check text-primary"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted">Job Offers</h6>
+                                                <h3 class="mb-0" id="offersCount">0</h3>
+                                            </div>
+                                            <div class="bg-light p-3 rounded">
+                                                <i class="fas fa-handshake text-primary"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted">Profile Views</h6>
+                                                <h3 class="mb-0">0</h3>
+                                            </div>
+                                            <div class="bg-light p-3 rounded">
+                                                <i class="fas fa-eye text-primary"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Recent Applications -->
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Recent Applications</h5>
+                                        <a href="#applications-section" class="btn btn-sm btn-link">View All</a>
+                                    </div>
+                                    <div class="card-body" id="applicationsContainer">
+                                        <!-- Applications will be loaded here -->
+                                        <div class="text-center py-5 text-muted" id="noApplicationsMessage">
+                                            <i class="fas fa-file-alt fa-3x mb-3"></i>
+                                            <h5>No applications yet</h5>
+                                            <p>Start applying to jobs to see your applications here.</p>
+                                            <button class="btn btn-primary">Browse Jobs</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recommended Jobs -->
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Recommended Jobs</h5>
+                                        <a href="#jobs-section" class="btn btn-sm btn-link">View All</a>
+                                    </div>
+                                    <div class="card-body" id="jobsContainer">
+                                        <!-- Jobs will be loaded here -->
+                                        <div id="loadingJobs" style="display: none;">
+                                            <div class="d-flex justify-content-center py-3">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <!-- Profile Summary -->
+                                <div class="card profile-card mb-4">
+                                    <div class="card-body text-center pt-4">
+                                        <img src="https://via.placeholder.com/100" class="profile-img mb-3" alt="Profile Photo">
+                                        <h5 class="mb-1" id="profileName">{{ session.get('user_name', 'User') }}</h5>
+                                        <p class="text-muted mb-3" id="profileTitle">Job Seeker</p>
+                                        <div class="d-flex justify-content-center mb-3">
+                                            <div class="px-3 border-end">
+                                                <h6 class="mb-0">0%</h6>
+                                                <small class="text-muted">Profile</small>
+                                            </div>
+                                            <div class="px-3">
+                                                <h6 class="mb-0" id="profileApplicationsCount">0</h6>
+                                                <small class="text-muted">Applications</small>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-outline-primary w-100 mb-3">
+                                            <i class="fas fa-pencil-alt me-2"></i> Complete Profile
+                                        </button>
+                                        <div class="d-flex justify-content-center">
+                                            <a href="#" class="btn btn-sm btn-outline-secondary me-2"><i class="fas fa-download"></i> Resume</a>
+                                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="fas fa-share-alt"></i> Share</a>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-light">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">New Member</small>
+                                            <small><i class="fas fa-map-marker-alt"></i> Not Set</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Upcoming Interviews -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Upcoming Interviews</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center py-4 text-muted" id="noInterviewsMessage">
+                                            <i class="fas fa-calendar-alt fa-3x mb-3"></i>
+                                            <h6>No upcoming interviews</h6>
+                                            <p class="small">Your scheduled interviews will appear here.</p>
+                                        </div>
+                                        <div id="interviewsContainer" style="display: none;">
+                                            <!-- Interviews will be loaded here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Jobs Section -->
+                    <section id="jobs-section" class="mb-5 d-none">
+                        <h2 class="mb-4">Browse Jobs</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-8">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Search jobs...">
+                                            <button class="btn btn-primary" type="button">Search</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select">
+                                            <option selected>Filter by category</option>
+                                            <option>Software Development</option>
+                                            <option>Data Science</option>
+                                            <option>Design</option>
+                                            <option>Marketing</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="allJobsContainer">
+                                    <!-- All jobs will be loaded here -->
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2">Loading jobs...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Applications Section -->
+                    <section id="applications-section" class="mb-5 d-none">
+                        <h2 class="mb-4">My Applications</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-8">
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-outline-primary active">All</button>
+                                            <button type="button" class="btn btn-outline-primary">Applied</button>
+                                            <button type="button" class="btn btn-outline-primary">In Review</button>
+                                            <button type="button" class="btn btn-outline-primary">Interview</button>
+                                            <button type="button" class="btn btn-outline-primary">Offered</button>
+                                            <button type="button" class="btn btn-outline-primary">Rejected</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select">
+                                            <option selected>Sort by date</option>
+                                            <option>Newest first</option>
+                                            <option>Oldest first</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="allApplicationsContainer">
+                                    <!-- All applications will be loaded here -->
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2">Loading applications...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Other sections would go here (interviews, profile, settings, etc.) -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-auth-compat.js"></script>
+
+<!-- Firebase Initialization -->
+<script>
+    // Initialize Firebase
+    const firebaseConfig = {
+        apiKey: "{{ config['FIREBASE_API_KEY'] }}",
+        authDomain: "{{ config['FIREBASE_AUTH_DOMAIN'] }}",
+        projectId: "{{ config['FIREBASE_PROJECT_ID'] }}",
+        storageBucket: "{{ config['FIREBASE_STORAGE_BUCKET'] }}",
+        messagingSenderId: "{{ config['FIREBASE_MESSAGING_SENDER_ID'] }}",
+        appId: "{{ config['FIREBASE_APP_ID'] }}"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+</script>
+
+<!-- Your dashboard.js script -->
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
