@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Dashboard - AI Recruitment Platform</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recruiter.css') }}">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">
+        <div class="container-fluid px-4">
+            <button class="btn btn-link text-dark d-lg-none me-3" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand fw-bold" href="#">AI Recruitment Platform</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown me-3">
+                        <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge rounded-pill bg-danger">2</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">New application for Software Engineer</a></li>
+                            <li><a class="dropdown-item" href="#">Interview scheduled for tomorrow</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <img src="https://via.placeholder.com/40" class="avatar-sm me-2" alt="Profile">
+                            <span id="userName">{{ session.get('user_name', 'Recruiter') }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#profile-section"><i class="fas fa-user me-2"></i> My Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="logoutButton"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 sidebar" id="sidebar">
+                <div class="sidebar-sticky">
+                    <div class="text-center py-4">
+                        <img src="https://via.placeholder.com/80" class="rounded-circle mb-2" alt="Profile">
+                        <h6 class="mb-0" id="sidebarUserName">{{ session.get('user_name', 'Recruiter') }}</h6>
+                        <small class="text-muted">{{ session.get('company', 'Company') }}</small>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard-section">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#jobs-section">
+                                <i class="fas fa-briefcase"></i> Jobs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#applications-section">
+                                <i class="fas fa-file-alt"></i> Applications
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#assessment-section">
+                                <i class="fas fa-tasks"></i> Assessments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#profile-section">
+                                <i class="fas fa-user"></i> Profile
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="sidebar-footer">
+                        <button class="btn btn-light btn-sm logout-btn" id="sidebarLogoutButton">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 main-content" id="main-content">
+                <div id="loadingSpinner" class="text-center my-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading your dashboard...</p>
+                </div>
+                
+                <div id="dashboardContent">
+                    <!-- Dashboard Overview Section -->
+                    <section id="dashboard-section" class="mb-5">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Recruiter Dashboard</h2>
+                            <div>
+                                <button class="btn btn-primary" id="postJobBtn">
+                                    <i class="fas fa-plus me-2"></i> Post New Job
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="row quick-stats mb-4">
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted">Active Jobs</h6>
+                                                <h3 class="mb-0" id="activeJobsCount">0</h3>
+                                            </div>
+                                            <div class="stat-icon">
+                                                <i class="fas fa-briefcase"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted">New Applications</h6>
+                                                <h3 class="mb-0" id="newApplicationsCount">0</h3>
+                                            </div>
+                                            <div class="stat-icon">
+                                                <i class="fas fa-file-alt"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted">Scheduled Interviews</h6>
+                                                <h3 class="mb-0" id="interviewsCount">0</h3>
+                                            </div>
+                                            <div class="stat-icon">
+                                                <i class="fas fa-calendar-check"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="text-muted">Hired</h6>
+                                                <h3 class="mb-0" id="hiredCount">0</h3>
+                                            </div>
+                                            <div class="stat-icon">
+                                                <i class="fas fa-user-check"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-7">
+                                <!-- Recent Applications -->
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Recent Applications</h5>
+                                        <a href="#applications-section" class="btn btn-sm btn-link">View All</a>
+                                    </div>
+                                    <div class="card-body" id="recentApplicationsContainer">
+                                        <div class="text-center py-4" id="loadingApplications">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-center py-5 text-muted d-none" id="noApplicationsMessage">
+                                            <i class="fas fa-file-alt fa-3x mb-3"></i>
+                                            <h5>No applications yet</h5>
+                                            <p>Applications for your job postings will appear here.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-5">
+                                <!-- Your Jobs -->
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Your Job Postings</h5>
+                                        <a href="#jobs-section" class="btn btn-sm btn-link">View All</a>
+                                    </div>
+                                    <div class="card-body" id="recentJobsContainer">
+                                        <div class="text-center py-4" id="loadingJobs">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-center py-5 text-muted d-none" id="noJobsMessage">
+                                            <i class="fas fa-briefcase fa-3x mb-3"></i>
+                                            <h5>No jobs posted yet</h5>
+                                            <p>Click "Post New Job" to create your first job listing.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Upcoming Interviews -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Upcoming Interviews</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center py-4" id="loadingInterviews">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-center py-4 text-muted d-none" id="noInterviewsMessage">
+                                            <i class="fas fa-calendar-alt fa-3x mb-3"></i>
+                                            <h6>No upcoming interviews</h6>
+                                            <p class="small">Scheduled interviews will appear here.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Applications Section -->
+                    <section id="applications-section" class="mb-5 d-none">
+                        <h2 class="mb-4">Applications</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Search applications...">
+                                            <button class="btn btn-outline-primary" type="button">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="jobFilter">
+                                            <option value="">All Jobs</option>
+                                            <!-- Job options will be loaded dynamically -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="statusFilter">
+                                            <option value="">All Statuses</option>
+                                            <option value="applied">Applied</option>
+                                            <option value="reviewing">Reviewing</option>
+                                            <option value="interview">Interview</option>
+                                            <option value="offered">Offered</option>
+                                            <option value="hired">Hired</option>
+                                            <option value="rejected">Rejected</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div id="applicationsContainer">
+                                    <div class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2">Loading applications...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Assessment Section -->
+                    <section id="assessment-section" class="mb-5 d-none">
+                        <h2 class="mb-4">Organize Assessments</h2>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Create Assessment</h5>
+                                        <p class="card-text">Create a new assessment for your candidates.</p>
+                                        <form id="createAssessmentForm">
+                                            <div class="mb-3">
+                                                <label for="assessmentTitle" class="form-label">Assessment Title</label>
+                                                <input type="text" class="form-control" id="assessmentTitle" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="assessmentType" class="form-label">Assessment Type</label>
+                                                <select class="form-select" id="assessmentType" required>
+                                                    <option value="">Select Type</option>
+                                                    <option value="technical">Technical Test</option>
+                                                    <option value="personality">Personality Assessment</option>
+                                                    <option value="aptitude">Aptitude Test</option>
+                                                    <option value="coding">Coding Challenge</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="assessmentJob" class="form-label">For Job</label>
+                                                <select class="form-select" id="assessmentJob" required>
+                                                    <option value="">Select Job</option>
+                                                    <!-- Job options will be loaded dynamically -->
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="assessmentDuration" class="form-label">Duration (minutes)</label>
+                                                <input type="number" class="form-control" id="assessmentDuration" min="5" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary w-100">Create Assessment</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Your Assessments</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center py-4" id="loadingAssessments">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive d-none" id="assessmentsTableContainer">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Title</th>
+                                                        <th>Type</th>
+                                                        <th>Job</th>
+                                                        <th>Duration</th>
+                                                        <th>Candidates</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="assessmentsTableBody">
+                                                    <!-- Assessment rows will be loaded dynamically -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="text-center py-4 text-muted d-none" id="noAssessmentsMessage">
+                                            <i class="fas fa-tasks fa-3x mb-3"></i>
+                                            <h5>No assessments created yet</h5>
+                                            <p>Create your first assessment using the form.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Assessment Results</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center py-4" id="loadingResults">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                                <div class="text-center py-4 text-muted d-none" id="noResultsMessage">
+                                    <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                                    <h5>No assessment results yet</h5>
+                                    <p>Results will appear here after candidates complete assessments.</p>
+                                </div>
+                                <div class="table-responsive d-none" id="resultsTableContainer">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Candidate</th>
+                                                <th>Assessment</th>
+                                                <th>Job</th>
+                                                <th>Score</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="resultsTableBody">
+                                            <!-- Result rows will be loaded dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Profile Section -->
+                    <section id="profile-section" class="mb-5 d-none">
+                        <h2 class="mb-4">My Profile</h2>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card profile-card mb-4">
+                                    <div class="card-body text-center py-4">
+                                        <div class="profile-image-container mb-3">
+                                            <img src="https://via.placeholder.com/150" class="profile-image" alt="Profile Photo">
+                                            <div class="profile-image-overlay">
+                                                <label for="profileImageUpload" class="mb-0">
+                                                    <i class="fas fa-camera"></i>
+                                                </label>
+                                                <input type="file" id="profileImageUpload" class="d-none">
+                                            </div>
+                                        </div>
+                                        <h4 class="mb-1" id="profileName">{{ session.get('user_name', 'Recruiter Name') }}</h4>
+                                        <p class="text-muted mb-3" id="profileTitle">Recruiter at {{ session.get('company', 'Company') }}</p>
+                                        <div class="profile-stats d-flex justify-content-center mb-3">
+                                            <div class="px-3 border-end">
+                                                <h6 class="mb-0" id="profileJobsCount">0</h6>
+                                                <small class="text-muted">Jobs</small>
+                                            </div>
+                                            <div class="px-3 border-end">
+                                                <h6 class="mb-0" id="profileHiresCount">0</h6>
+                                                <small class="text-muted">Hires</small>
+                                            </div>
+                                            <div class="px-3">
+                                                <h6 class="mb-0" id="profileAssessmentsCount">0</h6>
+                                                <small class="text-muted">Assessments</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Contact Information</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted">Email Address</label>
+                                            <div id="profileEmail">{{ session.get('user_email', 'email@example.com') }}</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted">Phone Number</label>
+                                            <div id="profilePhone">Not set</div>
+                                        </div>
+                                        <div>
+                                            <label class="form-label text-muted">Location</label>
+                                            <div id="profileLocation">Not set</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Edit Profile</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="profileForm">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="fullName" class="form-label">Full Name</label>
+                                                    <input type="text" class="form-control" id="fullName" placeholder="Your full name">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="jobTitle" class="form-label">Job Title</label>
+                                                    <input type="text" class="form-control" id="jobTitle" placeholder="Your job title">
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="email" class="form-label">Email Address</label>
+                                                    <input type="email" class="form-control" id="email" placeholder="Your email">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="phone" class="form-label">Phone Number</label>
+                                                    <input type="tel" class="form-control" id="phone" placeholder="Your phone number">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="company" class="form-label">Company</label>
+                                                <input type="text" class="form-control" id="company" placeholder="Your company">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="location" class="form-label">Location</label>
+                                                <input type="text" class="form-control" id="location" placeholder="Your location">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="bio" class="form-label">Bio</label>
+                                                <textarea class="form-control" id="bio" rows="3" placeholder="A brief description about yourself"></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Account Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="passwordForm" class="mb-4">
+                                            <h6>Change Password</h6>
+                                            <div class="row mb-3">
+                                                <div class="col-md-4">
+                                                    <label for="currentPassword" class="form-label">Current Password</label>
+                                                    <input type="password" class="form-control" id="currentPassword">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="newPassword" class="form-label">New Password</label>
+                                                    <input type="password" class="form-control" id="newPassword">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                                    <input type="password" class="form-control" id="confirmPassword">
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Update Password</button>
+                                        </form>
+                                        
+                                        <hr>
+                                        
+                                        <h6>Notification Preferences</h6>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="emailNotif" checked>
+                                            <label class="form-check-label" for="emailNotif">Email Notifications</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="applicationNotif" checked>
+                                            <label class="form-check-label" for="applicationNotif">New Application Alerts</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="assessmentNotif" checked>
+                                            <label class="form-check-label" for="assessmentNotif">Assessment Completion Alerts</label>
+                                        </div>
+                                        <button class="btn btn-primary" id="saveNotifSettings">Save Preferences</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Jobs Section (placeholder) -->
+                    <section id="jobs-section" class="mb-5 d-none">
+                        <h2 class="mb-4">Manage Jobs</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="text-center text-muted">Job management interface would be here.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Initialization -->
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBsGAQfn8KGRxvrZUbHXdGsVCEt5uZKGk",
+            authDomain: "recruitment-portal-automation.firebaseapp.com",
+            projectId: "recruitment-portal-automation",
+            storageBucket: "recruitment-portal-automation.appspot.com",
+            messagingSenderId: "363542928138",
+            appId: "1:363542928138:web:33373518ceef2ff37df8f3"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- External JavaScript -->
+    <script src="{{ url_for('static', filename='js/recruiter.js') }}"></script>
+</body>
+</html>

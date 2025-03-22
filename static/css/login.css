@@ -1,0 +1,311 @@
+/* login.css */
+
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+.login-container {
+    background-color: white;
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 1000px;
+    width: 100%;
+}
+
+/* Login Header */
+.login-header h2 {
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.logo {
+    max-height: 60px;
+    margin-bottom: 10px;
+}
+
+/* Form Elements */
+.form-floating .form-control {
+    border-radius: 10px;
+    padding: 12px 15px 12px 15px;
+    border: 1px solid #e0e0e0;
+    font-size: 15px;
+    box-shadow: none;
+    transition: all 0.3s ease;
+}
+
+.form-floating > label {
+    padding-left: 20px;
+    font-size: 14px;
+    color: #777;
+}
+
+.form-floating .form-control:focus {
+    border-color: #5d14b0;
+    box-shadow: 0 0 0 0.2rem rgba(106, 17, 203, 0.15);
+}
+
+/* Buttons */
+.btn-login {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.btn-candidate {
+    background-color: #6a11cb;
+    border-color: #6a11cb;
+}
+
+.btn-recruiter {
+    background-color: #ff7f50;
+    border-color: #ff7f50;
+}
+
+.btn-candidate:hover {
+    background-color: #5910a7;
+    border-color: #5910a7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(106, 17, 203, 0.25);
+}
+
+.btn-recruiter:hover {
+    background-color: #e86a3e;
+    border-color: #e86a3e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 127, 80, 0.25);
+}
+
+/* Separator */
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.separator::before,
+.separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.separator::before {
+    margin-right: 15px;
+}
+
+.separator::after {
+    margin-left: 15px;
+}
+
+/* Social Buttons */
+.social-buttons .btn {
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.social-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Portal Selector */
+.portal-selector {
+    display: flex;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+}
+
+.portal-option {
+    flex: 1;
+    text-align: center;
+    padding: 15px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.portal-candidate {
+    background-color: #f5f5f5;
+    color: #555;
+}
+
+.portal-recruiter {
+    background-color: #f5f5f5;
+    color: #555;
+}
+
+.portal-candidate.active {
+    background-color: #6a11cb;
+    color: white;
+}
+
+.portal-recruiter.active {
+    background-color: #ff7f50;
+    color: white;
+}
+
+/* Form Toggle */
+.form-toggle {
+    cursor: pointer;
+    color: #6a11cb;
+    font-weight: 600;
+    text-decoration: underline;
+    transition: all 0.3s ease;
+}
+
+.form-toggle:hover {
+    color: #5910a7;
+}
+
+/* Info Panel */
+.info-panel {
+    background: linear-gradient(135deg, #8019ce 0%, #3989ff 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.info-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../images/pattern.svg');
+    background-repeat: repeat;
+    opacity: 0.1;
+    z-index: 0;
+}
+
+.info-panel > div {
+    position: relative;
+    z-index: 1;
+}
+
+/* Portal Image Container */
+.image-container {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.portal-image {
+    max-width: 100%;
+    max-height: 240px;
+}
+
+/* Stats */
+.stats-container {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.stat-item {
+    padding: 10px;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Alert Styles */
+.alert {
+    display: none;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+#loading {
+    display: none;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Display Toggle */
+#recruiterLoginForm, #candidateLoginForm {
+    display: none;
+}
+
+.active-form {
+    display: block !important;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .login-container {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .info-panel {
+        border-radius: 0 0 16px 16px;
+    }
+    
+    .portal-image {
+        max-height: 180px;
+    }
+}
+
+@media (min-width: 769px) {
+    .info-panel {
+        border-radius: 0 16px 16px 0;
+    }
+}

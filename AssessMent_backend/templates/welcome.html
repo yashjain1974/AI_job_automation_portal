@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Assessments - AI Recruitment Platform</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        /* Assessment-specific styles */
+        .assessment-progress {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #e9ecef;
+            z-index: 0;
+        }
+        
+        .progress-bar-custom {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            height: 4px;
+            background-color: #007bff;
+            z-index: 1;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .step-text {
+            font-size: 12px;
+            color: #6c757d;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-step.active .step-icon,
+        .progress-step.completed .step-icon {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .progress-step.active .step-text,
+        .progress-step.completed .step-text {
+            color: #007bff;
+        }
+        
+        .step {
+            display: none;
+        }
+        
+        .active-step {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .assessment-card {
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .assessment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .assessment-card .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .assessment-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+        }
+        
+        .assessment-status {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .main-content {
+            padding-top: 70px;
+        }
+        
+        @media (min-width: 992px) {
+            .main-content {
+                margin-left: 250px;
+                padding-left: 30px;
+                padding-right: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">
+        <div class="container-fluid px-4">
+            <button class="btn btn-link text-dark d-lg-none me-3" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand fw-bold" >AI Recruitment Platform</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- Main Content -->
+            <div id="main-content">
+                <!-- Assessment Content -->
+                <div id="assessmentContent">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Candidate Assessments</h2>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-primary p-2 me-2">4 Assessments</span>
+                            <span class="badge bg-success p-2">1 Completed</span>
+                        </div>
+                    </div>
+
+                    <!-- Assessment Progress -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Assessment Progress</h5>
+                            <div class="assessment-progress">
+                                <div class="progress-bar-custom" id="progressBarCustom" style="width: 25%;"></div>
+                                <div class="progress-steps">
+                                    <div class="progress-step completed" data-step="0">
+                                        <div class="step-icon">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="step-text">Personal Info</div>
+                                    </div>
+                                    <div class="progress-step" data-step="1">
+                                        <div class="step-icon">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                        <div class="step-text">CV Analysis</div>
+                                    </div>
+                                    <div class="progress-step" data-step="2">
+                                        <div class="step-icon">
+                                            <i class="fas fa-code"></i>
+                                        </div>
+                                        <div class="step-text">Technical Assessment</div>
+                                    </div>
+                                    <div class="progress-step" data-step="3">
+                                        <div class="step-icon">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </div>
+                                        <div class="step-text">Final Assessment</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Assessment Steps -->
+                    <form id="multiStepForm" action="#" method="POST">
+                        <div class="step active-step" id="personal-info-step">
+                            <div class="card assessment-card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-user me-2 text-primary"></i> 
+                                        Personal Information
+                                    </h5>
+                                    <div class="badge bg-success assessment-status">Completed</div>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted mb-4">Please provide your personal information to begin the assessment process.</p>
+                                    <div class="mb-4">
+                                        <label for="fullName" class="form-label">Full Name:</label>
+                                        <input type="text" class="form-control" id="fullName" name="name" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="contactNumber" class="form-label">Contact Number:</label>
+                                        <input type="text" class="form-control" id="contactNumber" name="contactNumber" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="emailAddress" class="form-label">Email address:</label>
+                                        <input type="email" class="form-control" id="emailAddress" name="email" required>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-primary next">
+                                            Next <i class="fas fa-arrow-right ms-2"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step" id="cv-analysis-step">
+                            <div class="card assessment-card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-file-alt me-2 text-primary"></i> 
+                                        CV Analysis
+                                    </h5>
+                                    <div class="badge bg-warning text-dark assessment-status">Optional</div>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted mb-4">Upload your CV to receive an AI-powered analysis of your qualifications and skills.</p>
+                                    <div class="mb-4 text-center py-3">
+                                        <img src="https://via.placeholder.com/150" alt="CV Upload" class="mb-3">
+                                        <h5>Upload your CV for analysis</h5>
+                                        <p>Our AI system will analyze your CV and provide personalized feedback</p>
+                                        <a href="/analyze_cv" class="btn btn-primary assessment-link">
+                                            <i class="fas fa-upload me-2"></i> Upload CV
+                                        </a>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <button type="button" class="btn btn-outline-secondary prev">
+                                            <i class="fas fa-arrow-left me-2"></i> Previous
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary skip">
+                                            Skip <i class="fas fa-forward ms-2"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step" id="technical-assessment-step">
+                            <div class="card assessment-card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-code me-2 text-primary"></i> 
+                                        Technical Assessment
+                                    </h5>
+                                    <div class="badge bg-danger assessment-status">Required</div>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted mb-4">Test your technical knowledge with our interactive assessment.</p>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-4">
+                                                <h5>What to expect:</h5>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item d-flex align-items-center">
+                                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                                        5 multiple choice questions
+                                                    </li>
+                                                    <li class="list-group-item d-flex align-items-center">
+                                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                                        20 minutes duration
+                                                    </li>
+                                                    <li class="list-group-item d-flex align-items-center">
+                                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                                        Technical concepts and problem-solving
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 text-center d-flex flex-column align-items-center justify-content-center">
+                                            <img src="https://via.placeholder.com/120" alt="Technical Assessment" class="mb-3">
+                                            <a href="/technical_Assessment" class="btn btn-primary assessment-link">
+                                                <i class="fas fa-play-circle me-2"></i> Start Assessment
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <button type="button" class="btn btn-outline-secondary prev">
+                                            <i class="fas fa-arrow-left me-2"></i> Previous
+                                        </button>
+                                        <button type="button" class="btn btn-primary next">
+                                            Next <i class="fas fa-arrow-right ms-2"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step" id="final-assessment-step">
+                            <div class="card assessment-card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-graduation-cap me-2 text-primary"></i> 
+                                        Final Assessment
+                                    </h5>
+                                    <div class="badge bg-danger assessment-status">Required</div>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted mb-4">Complete the final assessment to finish your evaluation process.</p>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-4">
+                                                <h5>What to expect:</h5>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item d-flex align-items-center">
+                                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                                        5 comprehensive questions
+                                                    </li>
+                                                    <li class="list-group-item d-flex align-items-center">
+                                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                                        30 minutes duration
+                                                    </li>
+                                                    <li class="list-group-item d-flex align-items-center">
+                                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                                        Advanced concepts and real-world scenarios
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 text-center d-flex flex-column align-items-center justify-content-center">
+                                            <img src="https://via.placeholder.com/120" alt="Final Assessment" class="mb-3">
+                                            <a href="/final_AssessmentHome" class="btn btn-primary assessment-link">
+                                                <i class="fas fa-play-circle me-2"></i> Start Final Assessment
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <button type="button" class="btn btn-outline-secondary prev">
+                                            <i class="fas fa-arrow-left me-2"></i> Previous
+                                        </button>
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-check-circle me-2"></i> Complete Assessments
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Assessment Step Navigation Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            const steps = Array.from(document.getElementsByClassName('step'));
+            const nextButtons = Array.from(document.getElementsByClassName('next'));
+            const skipButtons = Array.from(document.getElementsByClassName('skip'));
+            const prevButtons = Array.from(document.getElementsByClassName('prev'));
+            const progressSteps = document.querySelectorAll('.progress-step');
+            const progressBarCustom = document.getElementById('progressBarCustom');
+            
+            let currentStep = 0;
+            const formData = {};
+            
+            // Function to update progress bar and steps
+            function updateProgress() {
+                // Update progress bar width
+                const progressPercentage = ((currentStep) / (steps.length - 1)) * 100;
+                progressBarCustom.style.width = `${progressPercentage}%`;
+                
+                // Update step styling
+                progressSteps.forEach((step, index) => {
+                    if (index < currentStep) {
+                        step.classList.add('completed');
+                        step.classList.remove('active');
+                    } else if (index === currentStep) {
+                        step.classList.add('active');
+                        step.classList.remove('completed');
+                    } else {
+                        step.classList.remove('active', 'completed');
+                    }
+                });
+            }
+            
+            // Function to show a specific step
+            function showStep(stepIndex) {
+                steps.forEach((step, index) => {
+                    if (index === stepIndex) {
+                        step.classList.add('active-step');
+                    } else {
+                        step.classList.remove('active-step');
+                    }
+                });
+                currentStep = stepIndex;
+                updateProgress();
+            }
+            
+            // Function to navigate to the next step
+            function navigateToNextStep() {
+                const currentStepFields = Array.from(steps[currentStep].querySelectorAll('input')).filter(field => field.id !== '');
+                
+                // Check if it's Step 1
+                if (currentStep === 0) {
+                    let isStepValid = true;
+                    
+                    currentStepFields.forEach(field => {
+                        if (!field.value) {
+                            isStepValid = false;
+                            field.classList.add('is-invalid');
+                        } else {
+                            field.classList.remove('is-invalid');
+                            formData[field.id] = field.value;
+                        }
+                    });
+                    
+                    if (!isStepValid) {
+                        return;
+                    }
+                } else {
+                    currentStepFields.forEach(field => {
+                        formData[field.id] = field.value;
+                    });
+                }
+                
+                showStep(currentStep + 1);
+            }
+            
+            // Function to navigate to the previous step
+            function navigateToPreviousStep() {
+                showStep(currentStep - 1);
+            }
+            
+            // Function to skip to the next step
+            function skipToNextStep() {
+                showStep(currentStep + 1);
+            }
+            
+            // Direct step navigation by clicking on progress steps
+            progressSteps.forEach((step, index) => {
+                step.addEventListener('click', function() {
+                    // Only allow navigation to completed steps or the next available step
+                    if (index <= currentStep + 1) {
+                        showStep(index);
+                    }
+                });
+            });
+            
+            // Add event listeners to buttons
+            skipButtons.forEach(button => {
+                button.addEventListener('click', skipToNextStep);
+            });
+            
+            nextButtons.forEach(button => {
+                button.addEventListener('click', navigateToNextStep);
+            });
+            
+            prevButtons.forEach(button => {
+                button.addEventListener('click', navigateToPreviousStep);
+            });
+            
+            // Check for URL parameter indicating completion
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('step') && urlParams.get('step') === 'completed') {
+                showStep(2); // Show technical assessment step
+            }
+            if (urlParams.has('step2') && urlParams.get('step2') === 'completed') {
+                showStep(3); // Show final assessment step
+            }
+            
+            // Initialize with the first step displayed
+            showStep(currentStep);
+            
+            // Simulate sidebar toggle functionality
+            const sidebarToggle = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Skills Assessment</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f2f2f2;
+            font-family: Arial, sans-serif;
+        }
+
+        nav {
+            padding: 20px;
+            background-color: rgb(236, 182, 101);
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        nav .nav-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 100px auto;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .btn {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+        }
+
+        .btn-technical-assessment {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-academic-assessment {
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .card-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="section">
+        <nav>
+            <div class="nav-text">Skills Assessment</div>
+        </nav>
+        <h1 class="text-center">Welcome to Skills Assessment</h1>
+        <div class="container" style="display: grid;">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title">Technical Skills Assessment</h2>
+                            <p class="welcome-message">Assess and improve your technical skills.</p>
+                            <a href="/analyze_cv" class="btn btn-technical-assessment">
+                                Start Technical Assessment <i class="bi bi-tools"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title">Academic Skills Assessment</h2>
+                            <p class="welcome-message">Assess your general academic skills.</p>
+                            <a href="/analyze_cv" class="btn btn-academic-assessment">
+                                Start Academic Assessment <i class="bi bi-book"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

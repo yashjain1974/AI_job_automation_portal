@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <title>AI MCQ Q/A Testing</title>
+    <style>
+        /* Global Styles */
+        body {
+            background-color: #f7f7f7;
+            font-family: 'Karla', sans-serif;
+        }
+
+        nav {
+            padding: 1rem;
+            background-color: #007bff;
+            border-bottom: 1px solid #e1e7f0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        nav .nav-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .container {
+            padding: 2rem;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Progress Bar Styles */
+        .progressbar {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progressbar-list {
+            display: flex;
+            align-items: center;
+            color: #6f787d;
+        }
+
+        .progress-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 0.5rem;
+        }
+
+        .progressbar-list.active {
+            color: #007bff;
+        }
+
+        .progressbar-list.active::before {
+            font-family: "Font Awesome 5 Free";
+            content: "\f00c";
+            font-size: 16px;
+            font-weight: 600;
+            color: #007bff;
+            padding: 6px;
+            background-color: #fff;
+            border: 2px solid #007bff;
+            border-radius: 50%;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            padding: 16px 30px;
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        /* Step Styles */
+        .step {
+            display: none;
+        }
+
+        .active-step {
+            display: block;
+        }
+
+        /* Additional Styles */
+        .welcome-message {
+            font-size: 20px;
+            color: #555;
+        }
+
+        .assessment-link {
+            text-decoration: none;
+            color: #fff;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .progressbar-list {
+                height: 3rem;
+            }
+
+            .btn {
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section>
+        <!-- Navigation Bar -->
+        <nav>
+            <div class="nav-text">Parakh:AI MCQ Q/A Testing</div>
+        </nav>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-7">
+                    <div class="container">
+                        <h1 class="text-center mt-3">Welcome to AI MCQ Q/A Testing 🤖</h1>
+                        <h4 class="text-center mt-3" style="color:brown;">Powered by Parakh</h4>
+                        <p class="text-center">Please complete the following assessments to evaluate your knowledge.</p>
+                        <hr>
+                        <div class="col-md-10 text-center">
+                            <div class="wizard-form py-5 my-2">
+                                <ul class="progressbar">
+                                    <li class="progressbar-list active"><span class="progress-icon"><i
+                                                class="fas fa-check"></i></span>Personal Information</li>
+                                    <li class="progressbar-list"><span class="progress-icon"><i
+                                                class="fas fa-user"></i></span>CV Analysis</li>
+                                    <li class="progressbar-list"><span class="progress-icon"><i
+                                                class="fas fa-cogs"></i></span>Technical Assessment</li>
+                                    <li class="progressbar-list"><span class="progress-icon"><i
+                                                class="fas fa-graduation-cap"></i></span>Final Assessment</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+
+                    <!-- Step 1: Personal Information -->
+                    <form id="multiStepForm" action="#" method="POST">
+                        <div class="step active-step" id="personal-info-step">
+                            <h3 class="fw-bold pt-5 text-center">Personal Information</h3>
+                            <p style="color: red;">All fields are mandatory *</p>
+                            <div class="mb-4">
+                                <label for="fullName" class="form-label">Full Name:</label>
+                                <input type="text" class="form-control" id="fullName" name="name" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="contactNumber" class="form-label">Contact Number:</label>
+                                <input type="text" class="form-control" id="contactNumber" name="contactNumber" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="emailAddress" class="form-label">Email address:</label>
+                                <input type="email" class="form-control" id="emailAddress" name="email" required>
+                            </div>
+                            <button type="button" class="btn btn-primary mb-3 next">Next (CV Analysis)</button>
+                        </div>
+
+                        <!-- Step 2: CV Analysis -->
+                        <div class="step" id="cv-analysis-step">
+                            <h3 class="fw-bold pt-5 text-center">CV Analysis</h3>
+                            <p>Upload your CV for analysis (Optional):</p>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h2 class="card-title">Analyze CV</h2>
+                                    <p class="welcome-message">Upload your CV to analyze your qualifications.</p>
+                                    <a href="/analyze_cv" class="btn btn-primary assessment-link">Upload CV <i
+                                            class="fas fa-upload"></i></a>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary mb-3 prev">Previous</button>
+                            <button type="button" class="btn btn-secondary mb-3 skip">Skip CV Analysis</button>
+                        </div>
+
+                        <!-- Step 3: Technical Assessment -->
+                        <div class="step" id="technical-assessment-step">
+                            <h3 class="fw-bold pt-5 text-center">Technical Assessment</h3>
+                            <p>Take the Technical Assessment (Mandatory):</p>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h2 class="card-title">Start Technical Assessment</h2>
+                                    <p class="welcome-message">Test your technical knowledge in this assessment.</p>
+                                    <a href="/technical_Assessment" class="btn btn-primary assessment-link">Start Assessment <i
+                                            class="fas fa-tasks"></i></a>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary mb-3 prev">Previous (CV Analysis)</button>
+                            <button type="button" class="btn btn-primary mb-3 next">Next (Final Assessment)</button>
+                        </div>
+
+                        <!-- Step 4: Final Assessment -->
+                        <div class="step" id="final-assessment-step">
+                            <h3 class="fw-bold pt-5 text-center">Final Assessment</h3>
+                            <p>Take the Final Assessment (Mandatory):</p>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h2 class="card-title">Start Final Assessment</h2>
+                                    <p class="welcome-message">Test your knowledge in this final assessment.</p>
+                                    <a href="/final_AssessmentHome" class="btn btn-primary assessment-link">Start Assessment <i
+                                            class="fas fa-check-circle"></i></a>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary mb-3 prev">Previous (Technical Assessment)</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+  <script>
+    // Initialize variables
+    const progressBar = document.getElementById('progress-bar');
+    const steps = Array.from(document.getElementsByClassName('step'));
+    const nextButtons = Array.from(document.getElementsByClassName('next'));
+    const skipButtons = Array.from(document.getElementsByClassName('skip'));
+    const prevButtons = Array.from(document.getElementsByClassName('prev'));
+    let currentStep = 0;
+    const formData = {};
+  
+    // Function to update progress bar
+    function updateProgressBar() {
+      const completedSteps = steps.slice(0, currentStep);
+      progressBar.value = (completedSteps.length / steps.length) * 100;
+    }
+  
+    // Function to show a specific step
+    function showStep(stepIndex) {
+      steps.forEach((step, index) => {
+        if (index === stepIndex) {
+          step.style.display = 'block';
+        } else {
+          step.style.display = 'none';
+        }
+      });
+      currentStep = stepIndex;
+      updateProgressBar();
+    }
+  
+    // Function to navigate to the next step
+    function navigateToNextStep() {
+      const currentStepFields = Array.from(steps[currentStep].querySelectorAll('input')).filter(field => field.id !== '');
+  
+      // Check if it's Step 1
+      if (currentStep === 0) {
+        let isStepValid = true;
+  
+        currentStepFields.forEach(field => {
+          if (!field.value) {
+            isStepValid = false;
+            field.classList.add('is-invalid');
+          } else {
+            field.classList.remove('is-invalid');
+            formData[field.id] = field.value;
+          }
+        });
+  
+        if (!isStepValid) {
+          return;
+        }
+      } else {
+        currentStepFields.forEach(field => {
+          formData[field.id] = field.value;
+        });
+      }
+  
+      showStep(currentStep + 1);
+    }
+  
+    // Function to navigate to the previous step
+    function navigateToPreviousStep() {
+      showStep(currentStep - 1);
+    }
+  
+    // Function to skip to the next step
+    function skipToNextStep() {
+      showStep(currentStep + 1);
+    }
+  
+    // Add event listeners to buttons
+    skipButtons.forEach(button => {
+      button.addEventListener('click', skipToNextStep);
+    });
+  
+    nextButtons.forEach(button => {
+      button.addEventListener('click', navigateToNextStep);
+    });
+  
+    prevButtons.forEach(button => {
+      button.addEventListener('click', navigateToPreviousStep);
+    });
+  
+    // Check for URL parameter indicating completion
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('step') && urlParams.get('step') === 'completed') {
+      showStep(currentStep + 2);
+      updateProgressBar()
+    }
+    if (urlParams.has('step2') && urlParams.get('step2') === 'completed') {
+      showStep(currentStep + 3);
+      updateProgressBar()
+    }
+  
+    // Start with the first step displayed
+    showStep(currentStep);
+  </script>
+  
+
+
+  
+</html>

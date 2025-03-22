@@ -362,12 +362,23 @@ def update_application_status():
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
-    # Clear session
+    # Clear all session data, not just specific keys
     session.clear()
-    return jsonify({
+    
+    # Invalidate the session cookie
+    response = jsonify({
         'success': True,
-        'redirect': url_for('login')
+        'redirect': url_for('logged_out')  # New route for logout page
     })
+    
+    # Set the session cookie to expire immediately
+    response.set_cookie('session', '', expires=0)
+    
+    return response
+
+@app.route('/logged-out')
+def logged_out():
+    return render_template('logged_out.html')
 
 @app.route('/api/register_user', methods=['POST'])
 def register_user():

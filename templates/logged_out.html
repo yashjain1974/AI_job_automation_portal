@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Logged Out</title>
+  <script>
+    // Clear any remaining auth state
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Wait briefly to ensure everything is cleared
+    setTimeout(function() {
+      window.location.href = '/login';
+    }, 500);
+  </script>
+</head>
+<body>
+  <p>Logging you out...</p>
+</body>
+</html>

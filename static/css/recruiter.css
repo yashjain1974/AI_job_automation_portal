@@ -1,0 +1,315 @@
+/* recruiter.css */
+
+/* General Styles */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* Navbar Styles */
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    height: 60px;
+}
+
+.avatar-sm {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    width: 250px;
+    z-index: 100;
+    padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: linear-gradient(135deg, #ff7f50 0%, #e86a3e 100%);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 60px);
+    padding-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 12px 20px;
+    margin: 4px 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-weight: 600;
+}
+
+.sidebar .nav-link i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Hide sidebar by default on mobile */
+@media (max-width: 991px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+    }
+}
+
+.sidebar-footer {
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+    text-align: center;
+}
+
+.logout-btn {
+    padding: 8px 20px;
+    border-radius: 20px;
+}
+
+/* Main Content Styles */
+.main-content {
+    margin-left: 250px;
+    padding: 80px 20px 20px;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 991px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+/* Card Styles */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    border: none;
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #f1f1f1;
+    padding: 15px 20px;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Stats Card Styles */
+.quick-stats .card {
+    border-left: 4px solid #ff7f50;
+}
+
+.stat-icon {
+    background-color: #ffefe9;
+    color: #ff7f50;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+/* Profile Card Styles */
+.profile-card {
+    border-radius: 15px;
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.profile-image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-image-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: #ff7f50;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 3px solid white;
+}
+
+.profile-stats {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* Table Styles */
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-top: none;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Application Cards */
+.application-card {
+    border-left: 4px solid #ff7f50;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.application-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Job Cards */
+.job-card {
+    border-left: 4px solid #ff7f50;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.job-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Badge Styles */
+.badge {
+    padding: 5px 10px;
+    font-weight: 500;
+    border-radius: 20px;
+}
+
+.badge-applied {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.badge-reviewing {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.badge-interview {
+    background-color: #ff7f50;
+    color: white;
+}
+
+.badge-offered {
+    background-color: #6a11cb;
+    color: white;
+}
+
+.badge-hired {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-rejected {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #ff7f50;
+    border-color: #ff7f50;
+}
+
+.btn-primary:hover {
+    background-color: #e86a3e;
+    border-color: #e86a3e;
+}
+
+.btn-outline-primary {
+    color: #ff7f50;
+    border-color: #ff7f50;
+}
+
+.btn-outline-primary:hover {
+    background-color: #ff7f50;
+    border-color: #ff7f50;
+}
+
+/* Sections */
+section {
+    transition: all 0.3s ease;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ff7f50;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #e86a3e;
+}
