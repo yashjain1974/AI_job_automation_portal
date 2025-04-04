@@ -30,7 +30,7 @@ bower_components/
 build/Release/
 
 # Virtual environment folder
-myenv/
+.myprojEnv/
 
 # Firebase authentication JSON file
 *.json

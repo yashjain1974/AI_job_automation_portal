@@ -153,13 +153,10 @@ def upload_cv():
                     temp_file_path = temp_file.name
                 resume_text = extract_text_from_pdf(temp_file_path)
                 os.remove(temp_file_path)
+                
+                # Store the resume text in session for later use in assessment
+                session['resume_text'] = resume_text
            
-            """
-           Extract information from the CV provided. Return the information grouped under the following: Contact, 
-            Academic Background, Professional Experience, Skills, Other. Start each group following this pattern: 
-            [<GROUP NAME>], e.g. for 'Skills' do '[SKILLS]'. . Return the information as detailed as possible.
-            CV:
-            """
             template = """
      You are an expert technical recruiter tasked with evaluating a candidate's CV.
 
@@ -208,24 +205,34 @@ IMPORTANT:
             
             try:
                 # Initialize Gemini
-                
-                
-                # Configure with your API key
-                        genai.configure(api_key="AIzaSyA4JBcd034sUeryEsrrCjsT7crpP0i1mzA")
+                genai.configure(api_key="AIzaSyA4JBcd034sUeryEsrrCjsT7crpP0i1mzA")
                 
                 # Create the model
-                        model = genai.GenerativeModel('gemini-1.5-pro')
+                model = genai.GenerativeModel('gemini-1.5-pro')
                 
                 # Generate the analysis
-                        response = model.generate_content(prompt)
+                response = model.generate_content(prompt)
+                
+                # Extract skills from the response text to use for question generation
+                skills_prompt = f"""
+                Extract a list of ALL technical skills mentioned in this CV analysis. 
+                Return ONLY the skill names as a comma-separated list with no additional text.
+                
+                ANALYSIS:
+                {response.text}
+                """
+                
+                skills_response = model.generate_content(skills_prompt)
+                session['extracted_skills'] = skills_response.text.strip()
                 
                 # Return the analysis result
-                        return render_template('analyzeCV.html', parsed_resume=response.text)
+                return render_template('analyzeCV.html', parsed_resume=response.text)
             except Exception as e:
-                        return render_template('analyzeCV.html', parsed_resume=None, error=f'Error analyzing CV: {str(e)}')
+                return render_template('analyzeCV.html', parsed_resume=None, error=f'Error analyzing CV: {str(e)}')
         else:
                 return render_template('analyzeCV.html', parsed_resume=None, error='Error uploading file. Only PDFs are allowed.')
     return render_template('analyzeCV.html', parsed_resume=None, error='Error uploading file.')
+
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() == "pdf"
@@ -313,16 +320,19 @@ def welcome():
 
 @app.route('/technical_Assessment')
 def technical_assessment():
+    if 'question_count' in session:
+        session.pop('question_count')
+    if 'individual_scores' in session:
+        session.pop('individual_scores')
     return render_template('assessment1.html')
 
 @app.route('/final_AssessmentHome')
 def final_assessmentWelcome():
     return render_template('assessment2.html')
 
-@app.route('/initialAssessment',methods=['GET', 'POST'])
+@app.route('/initialAssessment', methods=['GET', 'POST'])
 def initialAssessment():
-    
-    no_questions=5
+    no_questions = 5
     
     # Initialize session variable if not present
     if 'email' not in session:
@@ -337,36 +347,55 @@ def initialAssessment():
         session['email'] = email
         session['name'] = name
     
-   
     if 'question_count' not in session:
         session['question_count'] = 0
 
-    # Check if the user has reached the limit of 10 questions
+    # Check if the user has reached the limit of questions
     if session['question_count'] >= no_questions:
-                total_score =session.get('individual_scores')
-                session.clear()
-
+        total_score = session.get('individual_scores')
+        session.clear()
         # Render the thank you template
-                return render_template('thank_you.html',total_score=total_score)
+        return render_template('thank_you.html', total_score=total_score)
 
-    # Generate a question
-    random_topic = random.choice(topics)
+    # Check if there are extracted skills from resume
+    if 'extracted_skills' in session and session['extracted_skills']:
+        # Use the extracted skills for question generation
+        skills = session['extracted_skills']
+        # If there are multiple skills, we can pick one randomly
+        skill_list = [s.strip() for s in skills.split(',')]
+        random_skill = random.choice(skill_list) if skill_list else "General Programming"
+        
+        prompt = f"""
+        You are conducting a technical assessment for a job candidate.
+        
+        Based on their resume, they have experience with {random_skill}.
+        
+        Generate a challenging multiple-choice question with no more than 100 words to test their knowledge of {random_skill}.
+        
+        Include 4 options (A, B, C, D) .Don't include Correct answer in the question.
+        The question should be relevant to the skill and should not be too easy or too difficult.
+        Format the question as:
+        
+        Question: [The question text]
+        A) [Option A]
+        B) [Option B]
+        C) [Option C]
+        D) [Option D]
+        
+        """
+    else:
+        # Fallback to random topic if no skills from resume
+        random_topic = random.choice(programming_topics)
+        prompt = f"You are performing a skill assessment test for a candidate. Please generate a Multiple Choice Question for Initial assessment related to topic {random_topic}"
     
-    #1prompt = f"You are the hiring manager for a growing tech company. Please generate a random Multiple Choice Question from provided text {QuestionText} with options. This text contain Multiple choice questios in list format where questions and each options must be act as list value  . You have to generate that questions randomly"
-
-    #2 You are the hiring manager for a growing tech company. Please generate a quiz type question for a Python developer position related to  {random_topic}
-
-    prompt=f"You are the performing a skill assessment test for a candidate. Please generate a Multiple Choice Question for Initial assessement related to topic {random_topic}"
     question = generate_recruitment_question(prompt)
-
     print(question)
 
     # Increment the question count in the session
     session['question_count'] += 1
 
     # Render the template with the question
-    return render_template('new_index.html',question=question,question_count=session['question_count'])
-
+    return render_template('new_index.html', question=question, question_count=session['question_count'])
 
 @app.route('/validate', methods=['POST'])
 def validate():
