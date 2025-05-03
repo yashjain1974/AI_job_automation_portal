@@ -17,6 +17,10 @@ firebase_admin.initialize_app(cred)
 # Initialize Firestore
 db = firestore.client()
 
+# Ensure static folders exist
+os.makedirs(os.path.join(app.root_path, 'static', 'css'), exist_ok=True)
+os.makedirs(os.path.join(app.root_path, 'static', 'js'), exist_ok=True)
+
 # Login required decorator
 def login_required(f):
     @wraps(f)
@@ -103,6 +107,13 @@ def candidate_dashboard():
 @role_required('recruiter')
 def recruiter_dashboard():
     return render_template('recruiter_dashboard.html')
+
+# Resume Builder routes
+@app.route('/resume-builder')
+@login_required
+def resume_builder():
+    """Resume builder page"""
+    return render_template('resume_builder.html')
 
 # API routes for candidate
 @app.route('/api/candidate/profile', methods=['GET'])
@@ -418,6 +429,57 @@ def register_user():
             'role': role,
             'redirect': url_for('candidate_dashboard' if role == 'candidate' else 'recruiter_dashboard')
         })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        })
+
+# Resume API routes
+@app.route('/api/save-resume', methods=['POST'])
+@login_required
+def save_resume():
+    try:
+        user_id = session['user_id']
+        data = request.json
+        
+        # Store resume data in Firestore
+        resume_ref = db.collection('resumes').document(user_id)
+        resume_ref.set({
+            'userId': user_id,
+            'resumeData': data,
+            'createdAt': firestore.SERVER_TIMESTAMP,
+            'updatedAt': firestore.SERVER_TIMESTAMP
+        }, merge=True)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Resume saved successfully'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        })
+
+@app.route('/api/get-resume', methods=['GET'])
+@login_required
+def get_resume():
+    try:
+        user_id = session['user_id']
+        resume_doc = db.collection('resumes').document(user_id).get()
+        
+        if resume_doc.exists:
+            resume_data = resume_doc.to_dict()
+            return jsonify({
+                'success': True,
+                'resumeData': resume_data.get('resumeData', {})
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'No resume found'
+            })
     except Exception as e:
         return jsonify({
             'success': False,

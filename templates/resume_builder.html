@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Builder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/resume.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Additional styles for the modal download button */
+        .modal-actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .modal-actions .btn {
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Resume Builder</h1>
+            <div class="actions">
+                <button id="preview-btn" class="btn secondary"><i class="fas fa-eye"></i> Preview</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item active" data-section="personal"><i class="fas fa-user"></i> Personal Info</li>
+                    <li class="nav-item" data-section="education"><i class="fas fa-graduation-cap"></i> Education</li>
+                    <li class="nav-item" data-section="experience"><i class="fas fa-briefcase"></i> Experience</li>
+                    <li class="nav-item" data-section="projects"><i class="fas fa-code-branch"></i> Projects</li>
+                    <li class="nav-item" data-section="skills"><i class="fas fa-tools"></i> Skills</li>
+                </ul>
+            </div>
+
+            <div class="form-container">
+                <form id="resume-form">
+                    <!-- Personal Information Section -->
+                    <section id="personal" class="form-section active">
+                        <h2>Personal Information</h2>
+                        <div class="form-group">
+                            <label for="fullname">Full Name</label>
+                            <input type="text" id="fullname" name="fullname" placeholder="e.g., Jake Ryan" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" placeholder="e.g., 123-456-7890">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" placeholder="e.g., jake@example.com" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="linkedin">LinkedIn</label>
+                                <input type="text" id="linkedin" name="linkedin" placeholder="e.g., linkedin.com/in/jake">
+                            </div>
+                            <div class="form-group">
+                                <label for="github">GitHub</label>
+                                <input type="text" id="github" name="github" placeholder="e.g., github.com/jake">
+                            </div>
+                        </div>
+                        <div class="form-nav">
+                            <button type="button" class="btn next" data-next="education">Next: Education</button>
+                        </div>
+                    </section>
+
+                    <!-- Education Section -->
+                    <section id="education" class="form-section">
+                        <h2>Education</h2>
+                        <div id="education-entries">
+                            <div class="education-entry" data-index="0">
+                                <div class="form-group">
+                                    <label for="edu-institution-0">Institution</label>
+                                    <input type="text" id="edu-institution-0" name="education[0][institution]" placeholder="e.g., Southwestern University" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edu-location-0">Location</label>
+                                    <input type="text" id="edu-location-0" name="education[0][location]" placeholder="e.g., Georgetown, TX">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edu-degree-0">Degree</label>
+                                    <input type="text" id="edu-degree-0" name="education[0][degree]" placeholder="e.g., Bachelor of Arts in Computer Science">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="edu-start-0">Start Date</label>
+                                        <input type="text" id="edu-start-0" name="education[0][startDate]" placeholder="e.g., Aug. 2018">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="edu-end-0">End Date</label>
+                                        <input type="text" id="edu-end-0" name="education[0][endDate]" placeholder="e.g., May 2021">
+                                    </div>
+                                </div>
+                                <button type="button" class="btn remove-btn" data-type="education" data-index="0" style="display: none;"><i class="fas fa-trash"></i> Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-education" class="btn add-btn"><i class="fas fa-plus"></i> Add Another Education</button>
+                        <div class="form-nav">
+                            <button type="button" class="btn prev" data-prev="personal">Previous: Personal Info</button>
+                            <button type="button" class="btn next" data-next="experience">Next: Experience</button>
+                        </div>
+                    </section>
+
+                    <!-- Experience Section -->
+                    <section id="experience" class="form-section">
+                        <h2>Experience</h2>
+                        <div id="experience-entries">
+                            <div class="experience-entry" data-index="0">
+                                <div class="form-group">
+                                    <label for="exp-title-0">Job Title</label>
+                                    <input type="text" id="exp-title-0" name="experience[0][title]" placeholder="e.g., Undergraduate Research Assistant" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exp-company-0">Company/Organization</label>
+                                    <input type="text" id="exp-company-0" name="experience[0][company]" placeholder="e.g., Texas A&M University">
+                                </div>
+                                <div class="form-group">
+                                    <label for="exp-location-0">Location</label>
+                                    <input type="text" id="exp-location-0" name="experience[0][location]" placeholder="e.g., College Station, TX">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="exp-start-0">Start Date</label>
+                                        <input type="text" id="exp-start-0" name="experience[0][startDate]" placeholder="e.g., June 2020">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="exp-end-0">End Date</label>
+                                        <input type="text" id="exp-end-0" name="experience[0][endDate]" placeholder="e.g., Present">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exp-responsibilities-0">Responsibilities</label>
+                                    <textarea id="exp-responsibilities-0" name="experience[0][responsibilities]" placeholder="• Developed a REST API using FastAPI and PostgreSQL&#10;• Developed a full-stack web application&#10;• Explored ways to visualize GitHub collaboration" rows="4"></textarea>
+                                    <small>Enter each responsibility on a new line, starting with •</small>
+                                </div>
+                                <button type="button" class="btn remove-btn" data-type="experience" data-index="0" style="display: none;"><i class="fas fa-trash"></i> Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-experience" class="btn add-btn"><i class="fas fa-plus"></i> Add Another Experience</button>
+                        <div class="form-nav">
+                            <button type="button" class="btn prev" data-prev="education">Previous: Education</button>
+                            <button type="button" class="btn next" data-next="projects">Next: Projects</button>
+                        </div>
+                    </section>
+
+                    <!-- Projects Section -->
+                    <section id="projects" class="form-section">
+                        <h2>Projects</h2>
+                        <div id="project-entries">
+                            <div class="project-entry" data-index="0">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="proj-name-0">Project Name</label>
+                                        <input type="text" id="proj-name-0" name="projects[0][name]" placeholder="e.g., Gitlytics" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="proj-tech-0">Technologies Used</label>
+                                        <input type="text" id="proj-tech-0" name="projects[0][technologies]" placeholder="e.g., Python, Flask, React, PostgreSQL, Docker">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="proj-start-0">Start Date</label>
+                                        <input type="text" id="proj-start-0" name="projects[0][startDate]" placeholder="e.g., June 2020">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="proj-end-0">End Date</label>
+                                        <input type="text" id="proj-end-0" name="projects[0][endDate]" placeholder="e.g., Present">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="proj-description-0">Description</label>
+                                    <textarea id="proj-description-0" name="projects[0][description]" placeholder="• Developed a full-stack web application&#10;• Implemented GitHub OAuth&#10;• Visualized GitHub data" rows="4"></textarea>
+                                    <small>Enter each point on a new line, starting with •</small>
+                                </div>
+                                <button type="button" class="btn remove-btn" data-type="project" data-index="0" style="display: none;"><i class="fas fa-trash"></i> Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-project" class="btn add-btn"><i class="fas fa-plus"></i> Add Another Project</button>
+                        <div class="form-nav">
+                            <button type="button" class="btn prev" data-prev="experience">Previous: Experience</button>
+                            <button type="button" class="btn next" data-next="skills">Next: Skills</button>
+                        </div>
+                    </section>
+
+                    <!-- Skills Section -->
+                    <section id="skills" class="form-section">
+                        <h2>Technical Skills</h2>
+                        <div class="form-group">
+                            <label for="skill-languages">Languages</label>
+                            <input type="text" id="skill-languages" name="skills[languages]" placeholder="e.g., Java, Python, C/C++, SQL, JavaScript, HTML/CSS, R">
+                        </div>
+                        <div class="form-group">
+                            <label for="skill-frameworks">Frameworks</label>
+                            <input type="text" id="skill-frameworks" name="skills[frameworks]" placeholder="e.g., React, Node.js, Flask, JUnit, WordPress, Material-UI, FastAPI">
+                        </div>
+                        <div class="form-group">
+                            <label for="skill-tools">Developer Tools</label>
+                            <input type="text" id="skill-tools" name="skills[tools]" placeholder="e.g., Git, Docker, TravisCI, Google Cloud Platform, VS Code">
+                        </div>
+                        <div class="form-group">
+                            <label for="skill-libraries">Libraries</label>
+                            <input type="text" id="skill-libraries" name="skills[libraries]" placeholder="e.g., pandas, NumPy, Matplotlib">
+                        </div>
+                        <div class="form-nav">
+                            <button type="button" class="btn prev" data-prev="projects">Previous: Projects</button>
+                        </div>
+                    </section>
+                </form>
+            </div>
+        </div>
+
+        <!-- Preview Modal -->
+        <div id="preview-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Resume Preview</h2>
+                <div id="resume-preview"></div>
+                <div class="modal-actions">
+                    <button id="modal-print-btn" class="btn primary"><i class="fas fa-print"></i> Print Resume</button>
+                    <button id="modal-download-btn" class="btn secondary"><i class="fas fa-download"></i> Download HTML</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>

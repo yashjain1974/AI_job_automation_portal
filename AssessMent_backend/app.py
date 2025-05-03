@@ -332,7 +332,7 @@ def final_assessmentWelcome():
 
 @app.route('/initialAssessment', methods=['GET', 'POST'])
 def initialAssessment():
-    no_questions = 5
+    no_questions = 2
     
     # Initialize session variable if not present
     if 'email' not in session:
@@ -346,6 +346,7 @@ def initialAssessment():
         name = request.form.get('name')
         session['email'] = email
         session['name'] = name
+        print(name, email)
     
     if 'question_count' not in session:
         session['question_count'] = 0
@@ -399,8 +400,7 @@ def initialAssessment():
 
 @app.route('/validate', methods=['POST'])
 def validate():
-    no_questions=5
-   
+    no_questions = 2
 
     question = request.form['question']
     candidate_answer = request.form['candidate_answer']
@@ -408,78 +408,89 @@ def validate():
     print(candidate_answer)
 
     # Validate the answer and get the score
-   
     def is_integer_string(s):
+        if s is None:
+            return False
         try:
             int(s)
             return True
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
     # Assuming you have the 'score' variable as a string
     score = validate_answer(question, candidate_answer)
-    print("score=",score)
+    print("score=", score)
+    
     # Check if the score is an integer string
     if is_integer_string(score):
         score = int(score)
     else:
+        # Default to 0 if score is None or not convertible to int
         score = 0
+        
     if 'individual_scores' not in session:
         session['individual_scores'] = 0
-    print("score2=",score)
+    print("score2=", score)
+    
     # Append the current score to the list of individual scores
-    session['individual_scores']+=score
+    session['individual_scores'] += score
     print("Individual Scores:", session['individual_scores'])
 
-    # Check if the user has completed 10 questions
-    print("Session_question=",session['question_count'])
+    # Check if the user has completed questions
+    print("Session_question=", session['question_count'])
     if session['question_count'] >= no_questions:
         # Calculate the total score
         total_score = session['individual_scores']
         print("Total Score:", total_score)
 
-
         # Configure Gemini
-        genai.configure(api_key="AIzaSyA4JBcd034sUeryEsrrCjsT7crpP0i1mzA")  # Replace with your actual API key
+        genai.configure(api_key="AIzaSyA4JBcd034sUeryEsrrCjsT7crpP0i1mzA")
 
         # Create the prompt
         prompt = f"""
-        You work at a company named AICTE Government Recruitment. 
+        You work at a company named ABC Co.ltd Recruitment. 
         Your job is to write official mails to candidates informing them if they have passed or failed the hiring test.
-        To pass the test the candidate must score above the cutoff score of 20 out of 50.
+        To pass the test the candidate must score above the cutoff score of 2 out of 2.
         You only have to write the body of the email and nothing else. 
-        The name of the candidate is {session['name']}. The candidate scored {total_score} marks out of 50. Write an email to inform them about the result.
+        The name of the candidate is {session['name']}. The candidate scored {total_score} marks out of 2. Write an email to inform them about the result.
         You only have to write if the candidate passed or failed. Do not reveal their marks under any circumstances.
         """
 
-        # Create the model with temperature setting
-        model = genai.GenerativeModel('gemini-1.5-pro', 
-                                    generation_config={
-                                        "temperature": 0.9
-                                    })
+        try:
+            # Create the model with temperature setting
+            model = genai.GenerativeModel('gemini-1.5-pro', 
+                                        generation_config={
+                                            "temperature": 0.9
+                                        })
 
-        # Generate the email content
-        response = model.generate_content(prompt)
-        email_body = response.text
+            # Generate the email content
+            response = model.generate_content(prompt)
+            email_body = response.text
 
-        send_email(session['email'], email_body)
-        session.clear()  # Clear the session data after calculating the total score
+            # Use session email if available
+            recipient_email = session.get('email')
+            print(recipient_email)
+            if recipient_email:
+                send_email(recipient_email, email_body)
+            else:
+                print("No email address available, skipping email notification")
+                
+            session.clear()  # Clear the session data after calculating the total score
 
-        # Render the thank you template with the total score
-        return render_template('thank_you.html', total_score=total_score)
-
+            # Render the thank you template with the total score
+            return render_template('thank_you.html', total_score=total_score)
+        except Exception as e:
+            print(f"Error generating email: {str(e)}")
+            return render_template('thank_you.html', total_score=total_score, 
+                                  error="Could not send email notification, but your assessment is complete.")
 
     # Render the template with the score and the next question
-    return render_template('score.html', question=question,answer= candidate_answer, score=score)
-
+    return render_template('score.html', question=question, answer=candidate_answer, score=score)
 
 
 @app.route('/finalAssessment',methods=['GET', 'POST'])
 def finalAssessment():
-    
-
-    
-    no_questions=5
+    no_questions = 2
     
     # Initialize session variable if not present
     if 'email' not in session:
@@ -494,31 +505,23 @@ def finalAssessment():
         session['email'] = email
         session['name'] = name
     
-   
     if 'question_count' not in session:
         session['question_count'] = 0
 
-    # Check if the user has reached the limit of 10 questions
+    # Check if the user has reached the limit of questions
     if session['question_count'] >= no_questions:
-                total_score = sum(session.get('individual_scores'))
-                
+        # Get the total score directly (it's already the sum)
+        total_score = session.get('individual_scores', 0)
+        session.clear()
         
-               
-                session.clear()
-
         # Render the thank you template
-                return render_template('thank_you.html',total_score=total_score)
+        return render_template('thank_you.html', total_score=total_score)
 
     # Generate a question
     random_topic = random.choice(topics)
-
-    QuestionText=extract_text_from_pdf("MCQQuestions.pdf")
-    
-    #1prompt = f"You are the hiring manager for a growing tech company. Please generate a random Multiple Choice Question from provided text {QuestionText} with options. This text contain Multiple choice questios in list format where questions and each options must be act as list value  . You have to generate that questions randomly"
-
-    #2 You are the hiring manager for a growing tech company. Please generate a quiz type question for a Python developer position related to  {random_topic}
-
-    prompt=f"""You are doing final assessment from question bank provided to you. Please generate random Multiple Choice Question from provided question bank {QuestionText} with options. This text contain Multiple choice questions."""
+    QuestionText = extract_text_from_pdf("MCQQuestions2.pdf")
+    print(QuestionText)
+    prompt = f"""You are doing final assessment from question bank provided to you. Please generate one random Multiple Choice Question from provided question bank {QuestionText} with options. This text contain Multiple choice questions. and also Make the question length limit should be 100 words"""
     question = generate_recruitment_question(prompt)
 
     print(question)
@@ -527,12 +530,11 @@ def finalAssessment():
     session['question_count'] += 1
 
     # Render the template with the question
-    return render_template('finalAssessment.html',question=question,question_count=session['question_count'])
+    return render_template('finalAssessment.html', question=question, question_count=session['question_count'])
 
 @app.route('/finalAssessmentValidate', methods=['POST'])
 def finalAssessmentValidate():
-    no_questions=5
-   
+    no_questions = 2
 
     question = request.form['question']
     candidate_answer = request.form['candidate_answer']
@@ -540,67 +542,84 @@ def finalAssessmentValidate():
     print(candidate_answer)
 
     # Validate the answer and get the score
-   
     def is_integer_string(s):
+        if s is None:
+            return False
         try:
             int(s)
             return True
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
     # Assuming you have the 'score' variable as a string
     score = validate_answer(question, candidate_answer)
-    print("score=",score)
+    print("score=", score)
+    
     # Check if the score is an integer string
     if is_integer_string(score):
         score = int(score)
     else:
+        # Default to 0 if score is None or not convertible to int
         score = 0
+        
     if 'individual_scores' not in session:
         session['individual_scores'] = 0
-    print("score2=",score)
+    print("score2=", score)
     # Append the current score to the list of individual scores
-    session['individual_scores']+=score
+    session['individual_scores'] += score
     print("Individual Scores:", session['individual_scores'])
 
-    # Check if the user has completed 10 questions
-    print("Session_question=",session['question_count'])
+    # Check if the user has completed questions
+    print("Session_question=", session['question_count'])
     if session['question_count'] >= no_questions:
         # Calculate the total score
         total_score = session['individual_scores']
         print("Total Score:", total_score)
-        llm = OpenAI(temperature=0.9)
-        prompt = PromptTemplate(
-        input_variables=["name","score","cutoff","company_name"],
-        template="""
-                    You work at a company named {company_name}. 
-                    Your job is to write official mails to candidaes informing them if they have passed or failed the hiring test.
-                    To pass the test the candidate must score above the cutoff score of {cutoff} out of 5.
-                    You only have to write the body of the email and nothing else. 
-                    The name of the candidate is {name}. The candidate scored {score} marks out of 5. Write an email to inform them about the result.
-                    You only have to write if the candidate passed or failed. Do not reveal their marks under any circumstances.
-                    """,
-                    )
+
+        # Use Gemini API instead of OpenAI (since it's already working in other functions)
+        try:
+            # Configure Gemini
+            genai.configure(api_key="AIzaSyA4JBcd034sUeryEsrrCjsT7crpP0i1mzA")
+
+            # Create the prompt
+            prompt = f"""
+            You work at a company named Chegg.co. 
+            Your job is to write official emails to candidates informing them if they have passed or failed the hiring test.
+            To pass the test the candidate must score above the cutoff score of 1 out of 2.
+            You only have to write the body of the email and nothing else. 
+            The name of the candidate is {session['name']}. The candidate scored {total_score} marks out of 2. Write an email to inform them about the result.
+            You only have to write if the candidate passed or failed. Do not reveal their marks under any circumstances.
+            """
+
+            # Create the model with temperature setting
+            model = genai.GenerativeModel('gemini-1.5-pro', 
+                                        generation_config={
+                                            "temperature": 0.9
+                                        })
+
+            # Generate the email content
+            response = model.generate_content(prompt)
+            email_body = response.text
+
+            # Use session email if available, otherwise fallback to hardcoded email
+            recipient_email =  "yash191174@gmail.com"
+            print("Recipient Email:", recipient_email)
+            if recipient_email:
+                send_email(recipient_email, email_body)
+            else:
+                print("No email address available, skipping email notification")
                 
-        chain = LLMChain(llm=llm, prompt=prompt)
-        cutoff=3
-        k=chain.run({
-                "name":session['name'],
-                "cutoff":cutoff,
+            session.clear()  # Clear the session data after calculating the total score
 
-                "score":total_score,
-                "company_name":"AICTE Government Recruitment",
-        })
-        print(session["email"])
-        send_email("yash191174@gmail.com",k)
-        session.clear()  # Clear the session data after calculating the total score
-
-        # Render the thank you template with the total score
-        return render_template('thank_you.html', total_score=total_score)
-
+            # Render the thank you template with the total score
+            return render_template('thank_you.html', total_score=total_score)
+        except Exception as e:
+            print(f"Error generating email: {str(e)}")
+            return render_template('thank_you.html', total_score=total_score, 
+                                  error="Could not send email notification, but your assessment is complete.")
 
     # Render the template with the score and the next question
-    return render_template('finalAssessmentScore.html', question=question,answer= candidate_answer, score=score)
+    return render_template('finalAssessmentScore.html', question=question, answer=candidate_answer, score=score)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5001))  # Default to 5001 if PORT env variable is not set
     app.run(debug=True, port=port)
